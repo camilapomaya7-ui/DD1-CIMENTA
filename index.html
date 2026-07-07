@@ -1,191 +1,360 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Simulador de licuación · SPT-03 · Grupo 03</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=Inter:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#10151d; --panel:#171d27; --panel-alt:#1d2530; --border:#2a3342; --border-soft:#232b38;
-  --text:#e6e9ef; --text-dim:#8993a4; --text-faint:#5c6675;
-  --danger:#c1442e; --danger-bg:rgba(193,68,46,.14); --danger-text:#e58873;
-  --safe:#4f9d69; --safe-bg:rgba(79,157,105,.14); --safe-text:#8ecda3;
-  --warn:#d1a13a; --accent:#5b8ab3;
-  --sans:'Inter',system-ui,sans-serif; --mono:'IBM Plex Mono',monospace; --display:'Space Grotesk',sans-serif;
+  --bg:#f4f8fb;
+  --bg-soft:#eef6ff;
+  --card:#ffffff;
+  --card-2:#f8fbff;
+  --line:#d7e2ee;
+  --line-2:#edf2f7;
+  --text:#102033;
+  --muted:#637083;
+  --muted-2:#8a99ab;
+  --blue:#0b63ce;
+  --blue-2:#2a8cff;
+  --blue-3:#e4f1ff;
+  --cyan:#00a7c2;
+  --green:#169b62;
+  --green-bg:#e7f8ef;
+  --red:#d73932;
+  --red-bg:#fff0ee;
+  --amber:#c78312;
+  --amber-bg:#fff6dc;
+  --shadow:0 18px 45px rgba(14,44,80,.10);
+  --shadow-sm:0 10px 22px rgba(14,44,80,.08);
+  --sans:'Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
 }
 *{box-sizing:border-box;}
-body{margin:0; background:var(--bg); color:var(--text); font-family:var(--sans); line-height:1.5;
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  color:var(--text);
+  font-family:var(--sans);
+  line-height:1.5;
+  background:
+    radial-gradient(circle at top left, rgba(43,140,255,.18), transparent 34rem),
+    radial-gradient(circle at 90% 12%, rgba(0,167,194,.13), transparent 30rem),
+    linear-gradient(180deg,#ffffff 0%,var(--bg) 45%,#eef5fb 100%);
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  opacity:.42;
   background-image:
-    linear-gradient(var(--border-soft) 1px, transparent 1px),
-    linear-gradient(90deg, var(--border-soft) 1px, transparent 1px);
-  background-size:32px 32px; background-position:-1px -1px;}
-h1,h2,h3{font-family:var(--display); font-weight:600; margin:0;}
-.wrap{max-width:1180px; margin:0 auto; padding:32px 24px 80px;}
-header{margin-bottom:28px; display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:12px;}
-header p{margin:6px 0 0; color:var(--text-dim); font-size:14px;}
-.badge{font-family:var(--mono); font-size:11px; color:var(--text-dim); border:1px solid var(--border); padding:4px 10px; border-radius:2px; letter-spacing:.03em;}
-.panel{background:var(--panel); border:1px solid var(--border); border-radius:6px; padding:20px 22px; margin-bottom:20px;}
-.panel h3{font-size:15px; color:var(--text); margin-bottom:14px;}
-.hint{font-size:12px; color:var(--text-faint); margin:-8px 0 14px;}
-.grid-controls{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:20px;}
-.field label{display:flex; justify-content:space-between; font-size:12px; color:var(--text-dim); margin-bottom:6px;}
-.field label span.val{font-family:var(--mono); color:var(--text);}
-input[type=range]{width:100%; accent-color:var(--accent); background:transparent;}
-input[type=number], select{background:var(--panel-alt); border:1px solid var(--border); color:var(--text); border-radius:3px; padding:5px 7px; font-family:var(--mono); font-size:12px;}
-select{font-family:var(--sans); font-size:13px; width:100%; padding:7px 8px;}
-.layer-row{display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:13px; padding:6px 0; border-bottom:1px solid var(--border-soft);}
-.layer-row:last-child{border-bottom:none;}
-.layer-name{min-width:110px; color:var(--text-dim); font-family:var(--mono); font-size:12px;}
-.layer-row input{width:60px;}
-#nspt-grid{display:flex; flex-wrap:wrap; gap:8px;}
-.nspt-cell{display:flex; flex-direction:column; align-items:center; width:40px;}
-.nspt-cell span{font-size:10px; color:var(--text-faint); font-family:var(--mono); margin-bottom:3px;}
-.nspt-cell input{width:40px; text-align:center; padding:4px 2px;}
-.main-grid{display:grid; grid-template-columns:150px 1fr; gap:28px; align-items:start;}
-.borehole{position:sticky; top:20px;}
-.borehole-title{font-size:11px; color:var(--text-faint); font-family:var(--mono); margin-bottom:8px; text-transform:uppercase; letter-spacing:.06em;}
-.bh-col{position:relative; width:64px; border:1px solid var(--border); border-radius:3px; overflow:visible;}
-.bh-layer{width:100%; position:relative; border-bottom:1px solid var(--border);}
-.bh-layer:last-child{border-bottom:none;}
-.bh-layer.sp{background-image:radial-gradient(var(--text-faint) 1px, transparent 1.4px); background-size:9px 9px; background-color:#2b2417;}
-.bh-layer.spsc{background-image:radial-gradient(var(--text-faint) 1px, transparent 1.4px), repeating-linear-gradient(45deg, var(--border) 0 1px, transparent 1px 8px); background-size:9px 9px, 8px 8px; background-color:#26241c;}
-.bh-layer.cl{background-image:repeating-linear-gradient(50deg, var(--border) 0 1.5px, transparent 1.5px 9px); background-color:#221d24;}
-.bh-wt{position:absolute; left:-14px; right:-8px; border-top:2px dashed var(--accent); height:0;}
-.bh-wt::after{content:'▽'; position:absolute; left:-16px; top:-9px; color:var(--accent); font-size:11px;}
-.bh-dot{position:absolute; right:-6px; width:9px; height:9px; border-radius:50%; transform:translateY(-50%);}
-.bh-legend{font-size:11px; color:var(--text-faint); margin-top:10px; display:flex; flex-direction:column; gap:4px;}
-.bh-legend span.sw{display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:6px; vertical-align:-1px;}
-.metrics{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; margin-bottom:20px;}
-.metric{background:var(--panel); border:1px solid var(--border); border-radius:6px; padding:16px;}
-.metric p.label{font-size:12px; color:var(--text-dim); margin:0 0 6px;}
-.metric p.value{font-size:26px; font-family:var(--display); margin:0;}
-.chart-row{display:flex; align-items:center; gap:10px; height:19px; font-family:var(--mono); font-size:11px;}
-.chart-row .depth{width:34px; text-align:right; color:var(--text-faint);}
-.chart-row .track{flex:1; background:var(--panel-alt); border-radius:2px; height:11px; position:relative;}
-.chart-row .fill{height:100%; border-radius:2px;}
-.chart-row .fs{width:40px; color:var(--text-dim);}
-.chart-wrap{position:relative;}
-.thresh-line{position:absolute; top:0; bottom:0; border-left:2px dashed var(--text-faint); pointer-events:none;}
-table{width:100%; border-collapse:collapse; font-family:var(--mono); font-size:11.5px;}
-th,td{padding:6px 8px; text-align:right; border-bottom:1px solid var(--border-soft); white-space:nowrap;}
-th{color:var(--text-dim); font-weight:500; text-align:right; border-bottom:1px solid var(--border);}
-td:first-child, th:first-child{text-align:left;}
-tr.li td.verd{color:var(--danger-text);}
-tr.no td.verd{color:var(--safe-text);}
-.table-scroll{overflow-x:auto;}
-button{font-family:var(--sans); font-size:13px; background:var(--panel-alt); color:var(--text); border:1px solid var(--border); border-radius:4px; padding:8px 14px; cursor:pointer;}
-button:hover{border-color:var(--text-dim);}
-footer{margin-top:40px; font-size:12px; color:var(--text-faint); border-top:1px solid var(--border-soft); padding-top:16px;}
-@media (max-width:760px){ .main-grid{grid-template-columns:1fr;} .borehole{position:static; display:flex; align-items:flex-start; gap:16px;} }
+    linear-gradient(var(--line-2) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line-2) 1px, transparent 1px);
+  background-size:34px 34px;
+  mask-image:linear-gradient(to bottom, black 0%, transparent 75%);
+}
+h1,h2,h3,p{margin:0;}
+button,input,select{font:inherit;}
+.wrap{max-width:1240px;margin:0 auto;padding:28px 22px 70px;position:relative;z-index:1;}
+.hero{
+  overflow:hidden;
+  position:relative;
+  display:grid;
+  grid-template-columns:1.45fr .8fr;
+  gap:28px;
+  padding:30px;
+  margin-bottom:22px;
+  border:1px solid rgba(11,99,206,.16);
+  border-radius:28px;
+  background:linear-gradient(135deg,rgba(255,255,255,.96),rgba(231,244,255,.92));
+  box-shadow:var(--shadow);
+}
+.hero::after{
+  content:"";
+  position:absolute;
+  right:-80px;
+  top:-95px;
+  width:310px;
+  height:310px;
+  border-radius:50%;
+  background:linear-gradient(135deg,rgba(42,140,255,.22),rgba(0,167,194,.15));
+}
+.hero-kicker{display:inline-flex;align-items:center;gap:8px;margin-bottom:12px;color:var(--blue);font-weight:800;font-size:12px;letter-spacing:.08em;text-transform:uppercase;}
+.hero-kicker::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--blue-2);box-shadow:0 0 0 5px rgba(42,140,255,.12);}
+.hero h1{font-size:clamp(30px,5vw,56px);line-height:1.02;letter-spacing:-.05em;font-weight:800;max-width:760px;}
+.hero p{margin-top:14px;color:var(--muted);font-size:16px;max-width:750px;}
+.hero-panel{position:relative;z-index:2;align-self:stretch;display:grid;gap:12px;}
+.badge-card{
+  padding:18px;
+  border:1px solid var(--line);
+  border-radius:20px;
+  background:rgba(255,255,255,.82);
+  box-shadow:var(--shadow-sm);
+}
+.badge-card span{display:block;color:var(--muted);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+.badge-card strong{font-size:20px;color:var(--text);}
+.nav-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;}
+.btn{
+  border:0;
+  border-radius:999px;
+  padding:12px 18px;
+  font-weight:800;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  transition:.18s ease;
+}
+.btn-primary{background:linear-gradient(135deg,var(--blue),var(--blue-2));color:#fff;box-shadow:0 14px 28px rgba(11,99,206,.26);}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 18px 32px rgba(11,99,206,.34);}
+.btn-secondary{background:#fff;color:var(--blue);border:1px solid rgba(11,99,206,.22);}
+.btn-secondary:hover{background:var(--blue-3);}
+.section-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;}
+.card{
+  background:rgba(255,255,255,.94);
+  border:1px solid var(--line);
+  border-radius:24px;
+  padding:22px;
+  box-shadow:var(--shadow-sm);
+  backdrop-filter:blur(10px);
+  margin-bottom:20px;
+}
+.card h2{font-size:20px;letter-spacing:-.02em;margin-bottom:6px;display:flex;align-items:center;gap:10px;}
+.card h2 .icon{width:34px;height:34px;border-radius:12px;display:inline-grid;place-items:center;background:var(--blue-3);color:var(--blue);font-size:18px;}
+.hint{font-size:13px;color:var(--muted);margin-bottom:18px;}
+.grid-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;}
+.field{background:var(--card-2);border:1px solid var(--line-2);border-radius:18px;padding:14px;}
+.field label{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:9px;color:var(--muted);font-size:13px;font-weight:700;}
+.field label .val{font-family:var(--mono);color:var(--blue);font-weight:700;background:#fff;border:1px solid var(--line);border-radius:999px;padding:2px 8px;}
+input[type=range]{width:100%;accent-color:var(--blue);}
+input[type=number],select{
+  width:100%;
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--text);
+  border-radius:12px;
+  padding:9px 10px;
+  font-family:var(--mono);
+  font-size:13px;
+  outline:none;
+}
+input[type=number]:focus,select:focus{border-color:var(--blue-2);box-shadow:0 0 0 4px rgba(42,140,255,.12);}
+.layer-row{display:grid;grid-template-columns:120px 55px 80px 88px 88px 55px;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--line-2);font-size:13px;}
+.layer-row:last-child{border-bottom:0;}
+.layer-name{font-family:var(--mono);font-weight:700;color:var(--blue);}
+.layer-row span{color:var(--muted);font-size:12px;}
+#nspt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(54px,1fr));gap:9px;}
+.nspt-cell{background:var(--card-2);border:1px solid var(--line-2);border-radius:14px;padding:8px;display:grid;gap:5px;text-align:center;}
+.nspt-cell span{font-family:var(--mono);font-size:11px;color:var(--muted-2);}
+.nspt-cell input{text-align:center;padding:7px 3px;border-radius:10px;}
+.calc-strip{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  flex-wrap:wrap;
+  padding:18px 20px;
+  border:1px solid rgba(11,99,206,.16);
+  border-radius:24px;
+  background:linear-gradient(135deg,#ffffff,#eaf5ff);
+  box-shadow:var(--shadow-sm);
+  margin:0 0 20px;
+}
+.calc-strip .status{margin-left:auto;color:var(--muted);font-size:13px;font-weight:700;}
+.calc-strip .status.ready{color:var(--green);}
+.calc-strip .status.pending{color:var(--amber);}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.metric{position:relative;overflow:hidden;background:#fff;border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:var(--shadow-sm);}
+.metric::before{content:"";position:absolute;left:0;top:0;right:0;height:5px;background:linear-gradient(90deg,var(--blue),var(--cyan));}
+.metric .label{font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.04em;}
+.metric .value{margin-top:7px;font-size:32px;font-weight:800;letter-spacing:-.04em;color:var(--text);}
+.metric .sub{font-size:12px;color:var(--muted);margin-top:4px;}
+.result-banner{display:none;margin-bottom:20px;border-radius:24px;padding:20px;border:1px solid var(--line);box-shadow:var(--shadow-sm);background:#fff;}
+.result-banner.show{display:block;}
+.result-banner.safe{border-color:#b8e8cf;background:linear-gradient(135deg,#ffffff,var(--green-bg));}
+.result-banner.danger{border-color:#ffc5bc;background:linear-gradient(135deg,#ffffff,var(--red-bg));}
+.result-banner.warn{border-color:#f6df9c;background:linear-gradient(135deg,#ffffff,var(--amber-bg));}
+.result-banner h2{font-size:22px;margin-bottom:6px;}
+.result-banner p{color:var(--muted);}
+.main-grid{display:grid;grid-template-columns:190px 1fr;gap:26px;align-items:start;}
+.borehole-card{position:sticky;top:18px;}
+.borehole-title{font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;}
+.bh-wrap{display:flex;gap:16px;align-items:flex-start;}
+.depth-axis{height:360px;display:flex;flex-direction:column;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--muted-2);text-align:right;padding:0 0 0 3px;}
+.bh-col{position:relative;width:76px;height:360px;border:1px solid #9fb2c7;border-radius:12px;overflow:visible;box-shadow:inset 0 0 0 1px rgba(255,255,255,.65);}
+.bh-layer{width:100%;position:relative;border-bottom:1px solid rgba(16,32,51,.22);display:grid;place-items:center;font-size:11px;font-weight:800;color:rgba(16,32,51,.72);}
+.bh-layer.sp{background-color:#f4dca7;background-image:radial-gradient(#9c7b32 1.2px, transparent 1.6px);background-size:10px 10px;}
+.bh-layer.spsc{background-color:#d9ead6;background-image:radial-gradient(#70956f 1.2px, transparent 1.6px),repeating-linear-gradient(45deg,rgba(65,99,69,.28) 0 1px,transparent 1px 9px);background-size:10px 10px,9px 9px;}
+.bh-layer.cl{background-color:#d7d2ee;background-image:repeating-linear-gradient(55deg,rgba(77,64,130,.35) 0 1.4px,transparent 1.4px 9px);}
+.bh-layer:last-child{border-bottom:0;}
+.bh-wt{position:absolute;left:-16px;right:-10px;border-top:3px dashed var(--blue);height:0;z-index:3;}
+.bh-wt::before{content:'▽ N.F.';position:absolute;left:-42px;top:-13px;color:var(--blue);font-family:var(--mono);font-size:11px;font-weight:700;background:#fff;border:1px solid var(--line);border-radius:999px;padding:1px 6px;}
+.bh-dot{position:absolute;right:-8px;width:12px;height:12px;border-radius:50%;transform:translateY(-50%);border:2px solid #fff;box-shadow:0 3px 8px rgba(16,32,51,.18);}
+.bh-legend{margin-top:12px;display:grid;gap:6px;font-size:12px;color:var(--muted);}
+.bh-legend .sw{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:6px;vertical-align:-2px;border:1px solid rgba(16,32,51,.18);}
+.chart-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px;flex-wrap:wrap;}
+.chart-title{font-weight:800;}
+.chart-legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted);}
+.legend-dot{display:inline-block;width:10px;height:10px;border-radius:4px;margin-right:5px;vertical-align:-1px;}
+.chart-wrap{position:relative;background:linear-gradient(180deg,#fff,#fbfdff);border:1px solid var(--line);border-radius:18px;padding:14px 12px;}
+.chart-row{display:grid;grid-template-columns:44px 1fr 52px;gap:10px;align-items:center;height:22px;font-family:var(--mono);font-size:12px;}
+.chart-row .depth{text-align:right;color:var(--muted-2);}
+.track{height:12px;border-radius:999px;background:#ebf1f7;position:relative;overflow:hidden;}
+.fill{height:100%;border-radius:999px;transition:width .3s ease;background:var(--blue);}
+.fs{text-align:right;color:var(--muted);font-weight:700;}
+.thresh-line{position:absolute;top:12px;bottom:12px;border-left:2px dashed #344762;opacity:.65;pointer-events:none;}
+.table-scroll{overflow:auto;max-height:560px;border:1px solid var(--line);border-radius:18px;background:#fff;}
+table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px;min-width:980px;}
+th,td{padding:9px 10px;text-align:right;border-bottom:1px solid var(--line-2);white-space:nowrap;}
+th{position:sticky;top:0;background:#f2f7ff;color:#526176;font-weight:800;border-bottom:1px solid var(--line);z-index:1;}
+td:first-child,th:first-child{text-align:left;}
+tr:hover td{background:#f9fcff;}
+tr.li td.verd{color:var(--red);font-weight:800;}
+tr.no td.verd{color:var(--green);font-weight:800;}
+.pill{display:inline-block;border-radius:999px;padding:2px 8px;font-weight:800;font-size:11px;}
+.pill.li{background:var(--red-bg);color:var(--red);}
+.pill.no{background:var(--green-bg);color:var(--green);}
+footer{margin-top:36px;color:var(--muted);font-size:12px;padding:18px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.78);}
+@media (max-width:980px){.hero,.section-grid,.main-grid{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}.hero{padding:24px}.borehole-card{position:static}.grid-controls{grid-template-columns:1fr}.layer-row{grid-template-columns:1fr 55px 80px;}.layer-row span:nth-of-type(2),.layer-row span:nth-of-type(3){display:none}.calc-strip .status{margin-left:0;width:100%;}}
+@media (max-width:560px){.wrap{padding:18px 12px 54px}.metrics{grid-template-columns:1fr}.card{padding:18px}.hero h1{font-size:32px}.btn{width:100%}}
 </style>
 </head>
 <body>
 <div class="wrap">
-
-<header>
-  <div>
-    <h1>Simulador de licuación</h1>
-    <p>Sondeo SPT-03 · Chincha, Ica · Grupo 03 · Ingeniería de Cimentaciones</p>
-  </div>
-  <span class="badge">NORMA E.050 · YOUD &amp; NOBLE 2001</span>
-</header>
-
-<div class="panel">
-  <h3>Parámetros sísmicos y del ensayo</h3>
-  <div class="grid-controls">
-    <div class="field">
-      <label>Magnitud sísmica Mw <span class="val" id="mw-out">8.0</span></label>
-      <input type="range" id="mw" min="5.5" max="9" step="0.1" value="8">
-    </div>
-    <div class="field">
-      <label>PGA (g) <span class="val" id="pga-out">0.46</span></label>
-      <input type="range" id="pga" min="0.1" max="0.8" step="0.01" value="0.46">
-    </div>
-    <div class="field">
-      <label>Nivel freático (m) <span class="val" id="dw-out">3.0</span></label>
-      <input type="range" id="dw" min="0" max="10" step="0.5" value="3">
-    </div>
-    <div class="field">
-      <label>Energía del martillo (%) <span class="val" id="energia-out">70</span></label>
-      <input type="range" id="energia" min="45" max="90" step="1" value="70">
-    </div>
-    <div class="field">
-      <label>Categoría de edificación (FSL mín.)</label>
-      <select id="categoria">
-        <option value="1.25" selected>A · esencial (1.25)</option>
-        <option value="1.15">B · importante (1.15)</option>
-        <option value="1.00">C · común (1.00)</option>
-      </select>
-    </div>
-  </div>
-</div>
-
-<div class="panel">
-  <h3>Estratigrafía</h3>
-  <p class="hint">Define hasta qué profundidad llega cada capa, su peso específico saturado y su porcentaje de finos.</p>
-  <div id="layers"></div>
-</div>
-
-<div class="panel">
-  <h3>N-SPT medido por profundidad</h3>
-  <p class="hint">Edita cualquier valor para simular un perfil más denso o más suelto.</p>
-  <div id="nspt-grid"></div>
-</div>
-
-<div class="metrics">
-  <div class="metric"><p class="label">Tramos que licuan</p><p class="value" id="m-count">–</p></div>
-  <div class="metric"><p class="label">FS mínimo</p><p class="value" id="m-fsmin">–</p></div>
-  <div class="metric"><p class="label">PL máximo</p><p class="value" id="m-plmax">–</p></div>
-  <div class="metric"><p class="label">Profundidad crítica</p><p class="value" id="m-zcrit">–</p></div>
-</div>
-
-<div class="panel">
-  <h3>Perfil de resultados</h3>
-  <div class="main-grid">
-    <div class="borehole">
-      <p class="borehole-title">Log de sondeo</p>
-      <div class="bh-col" id="bh-col"></div>
-      <div class="bh-legend">
-        <div><span class="sw" style="background:#2b2417; border:1px solid var(--border);"></span>SP</div>
-        <div><span class="sw" style="background:#26241c; border:1px solid var(--border);"></span>SP-SC</div>
-        <div><span class="sw" style="background:#221d24; border:1px solid var(--border);"></span>CL</div>
-        <div style="margin-top:4px; color:var(--accent);">▽ nivel freático</div>
-      </div>
-    </div>
+  <section class="hero">
     <div>
-      <div class="chart-wrap" id="chart"></div>
-      <div style="display:flex; gap:16px; margin-top:10px; font-size:11.5px; color:var(--text-dim);">
-        <span><span style="display:inline-block; width:9px; height:9px; border-radius:2px; background:var(--danger); margin-right:5px;"></span>licua</span>
-        <span><span style="display:inline-block; width:9px; height:9px; border-radius:2px; background:var(--safe); margin-right:5px;"></span>no licua</span>
-        <span><span style="display:inline-block; width:9px; height:11px; border-left:2px dashed var(--text-faint); margin-right:5px;"></span>FSL mínimo</span>
+      <div class="hero-kicker">Simulación geotécnica SPT</div>
+      <h1>Simulador de potencial de licuación</h1>
+      <p>Herramienta académica para evaluar el sondeo SPT-03 en Chincha, Ica. Modifica los parámetros sísmicos, el nivel freático, la estratigrafía y los valores N-SPT; luego presiona <strong>Calcular</strong> para obtener el perfil de factor de seguridad y el veredicto por profundidad.</p>
+      <div class="nav-actions">
+        <button class="btn btn-primary" id="hero-calc">⚙️ Calcular simulación</button>
+        <a class="btn btn-secondary" href="#tabla" style="text-decoration:none;">Ver tabla detallada</a>
       </div>
     </div>
+    <div class="hero-panel">
+      <div class="badge-card"><span>Proyecto</span><strong>Grupo 03 · SPT-03</strong></div>
+      <div class="badge-card"><span>Ubicación</span><strong>Chincha, Ica</strong></div>
+      <div class="badge-card"><span>Referencias</span><strong>E.050 · Youd & Noble</strong></div>
+    </div>
+  </section>
+
+  <div class="section-grid">
+    <section class="card">
+      <h2><span class="icon">⚡</span>Parámetros sísmicos y del ensayo</h2>
+      <p class="hint">Ajusta las condiciones de análisis antes de ejecutar el cálculo.</p>
+      <div class="grid-controls">
+        <div class="field">
+          <label>Magnitud sísmica Mw <span class="val" id="mw-out">8.0</span></label>
+          <input type="range" id="mw" min="5.5" max="9" step="0.1" value="8">
+        </div>
+        <div class="field">
+          <label>PGA (g) <span class="val" id="pga-out">0.46</span></label>
+          <input type="range" id="pga" min="0.1" max="0.8" step="0.01" value="0.46">
+        </div>
+        <div class="field">
+          <label>Nivel freático (m) <span class="val" id="dw-out">3.0</span></label>
+          <input type="range" id="dw" min="0" max="10" step="0.5" value="3">
+        </div>
+        <div class="field">
+          <label>Energía del martillo (%) <span class="val" id="energia-out">70</span></label>
+          <input type="range" id="energia" min="45" max="90" step="1" value="70">
+        </div>
+        <div class="field" style="grid-column:1 / -1;">
+          <label>Categoría de edificación</label>
+          <select id="categoria">
+            <option value="1.25" selected>A · esencial · FSL mínimo 1.25</option>
+            <option value="1.15">B · importante · FSL mínimo 1.15</option>
+            <option value="1.00">C · común · FSL mínimo 1.00</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2><span class="icon">🧱</span>Estratigrafía</h2>
+      <p class="hint">Define la profundidad final de cada capa, el peso específico saturado y el porcentaje de finos.</p>
+      <div id="layers"></div>
+    </section>
   </div>
-</div>
 
-<div class="panel">
-  <h3>Tabla de cálculo detallada</h3>
-  <div class="table-scroll">
-    <table>
-      <thead><tr>
-        <th>Prof (m)</th><th>Capa</th><th>N-SPT</th><th>N1(60)cs</th><th>rd</th><th>CSR</th><th>CRR7.5</th><th>MSF</th><th>CRR M</th><th>FS</th><th>PL%</th><th>Situación</th><th>Verdicto</th>
-      </tr></thead>
-      <tbody id="table-body"></tbody>
-    </table>
+  <section class="card">
+    <h2><span class="icon">📍</span>N-SPT medido por profundidad</h2>
+    <p class="hint">Edita cualquier valor para simular un perfil más denso o más suelto. Cada casilla representa un metro de profundidad.</p>
+    <div id="nspt-grid"></div>
+  </section>
+
+  <div class="calc-strip">
+    <button class="btn btn-primary" id="calc-btn">✅ Calcular</button>
+    <button class="btn btn-secondary" id="reset-btn">Restablecer valores</button>
+    <button class="btn btn-secondary" id="csv-btn">Descargar CSV</button>
+    <span class="status pending" id="calc-status">Cambios listos. Presiona “Calcular”.</span>
   </div>
-</div>
 
-<div style="margin-top:8px;">
-  <button id="reset-btn">Restablecer valores por defecto</button>
-</div>
+  <section class="result-banner" id="result-banner">
+    <h2 id="result-title">Resultado de la simulación</h2>
+    <p id="result-text">Presiona calcular para generar el diagnóstico.</p>
+  </section>
 
-<footer>
-  Fórmulas: rd (Youd et al., 2001), CRR7.5 (Idriss &amp; Boulanger), corrección por finos (α, β), MSF y probabilidad de licuación PL (Youd &amp; Noble, 2001). Umbrales de PL según Tabla 13 de la Norma E.050 (Iwasaki, 1984). Herramienta con fines académicos, no reemplaza el criterio de un ingeniero geotecnista habilitado.
-</footer>
+  <section class="metrics">
+    <div class="metric"><p class="label">Tramos que licuan</p><p class="value" id="m-count">–</p><p class="sub">respecto a 24 m analizados</p></div>
+    <div class="metric"><p class="label">FS mínimo</p><p class="value" id="m-fsmin">–</p><p class="sub">menor seguridad calculada</p></div>
+    <div class="metric"><p class="label">PL máximo</p><p class="value" id="m-plmax">–</p><p class="sub">probabilidad máxima</p></div>
+    <div class="metric"><p class="label">Profundidad crítica</p><p class="value" id="m-zcrit">–</p><p class="sub">zona con menor FS</p></div>
+  </section>
 
+  <section class="card">
+    <h2><span class="icon">📊</span>Perfil de resultados</h2>
+    <p class="hint">El gráfico compara el factor de seguridad por profundidad. La línea discontinua representa el FSL mínimo seleccionado.</p>
+    <div class="main-grid">
+      <div class="borehole-card">
+        <p class="borehole-title">Log de sondeo</p>
+        <div class="bh-wrap">
+          <div class="depth-axis"><span>0 m</span><span>6 m</span><span>12 m</span><span>18 m</span><span>24 m</span></div>
+          <div>
+            <div class="bh-col" id="bh-col"></div>
+            <div class="bh-legend">
+              <div><span class="sw" style="background:#f4dca7;"></span>SP</div>
+              <div><span class="sw" style="background:#d9ead6;"></span>SP-SC</div>
+              <div><span class="sw" style="background:#d7d2ee;"></span>CL</div>
+              <div style="color:var(--blue);font-weight:700;">▽ nivel freático</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="chart-top">
+          <p class="chart-title">FS de licuación vs profundidad</p>
+          <div class="chart-legend">
+            <span><span class="legend-dot" style="background:var(--red);"></span>licua</span>
+            <span><span class="legend-dot" style="background:var(--green);"></span>no licua</span>
+            <span><span style="display:inline-block;width:10px;height:12px;border-left:2px dashed #344762;margin-right:5px;vertical-align:-2px;"></span>FSL mínimo</span>
+          </div>
+        </div>
+        <div class="chart-wrap" id="chart"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" id="tabla">
+    <h2><span class="icon">🧮</span>Tabla de cálculo detallada</h2>
+    <p class="hint">Incluye N-SPT corregido, CSR, CRR, factor de seguridad y veredicto por profundidad.</p>
+    <div class="table-scroll">
+      <table>
+        <thead><tr>
+          <th>Prof (m)</th><th>Capa</th><th>N-SPT</th><th>N1(60)cs</th><th>rd</th><th>CSR</th><th>CRR7.5</th><th>MSF</th><th>CRR M</th><th>FS</th><th>PL%</th><th>Situación</th><th>Veredicto</th>
+        </tr></thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    Fórmulas utilizadas: corrección de N-SPT, factor rd, CSR, CRR7.5, MSF, factor de seguridad FS = CRR/CSR y probabilidad de licuación PL. Esta herramienta es de uso académico y no reemplaza el criterio de un ingeniero geotecnista habilitado.
+  </footer>
 </div>
 
 <script>
@@ -199,12 +368,18 @@ const defaultState = {
   nspt: [9,9,10,10,9,10,15,14,14,16,13,17,16,16,14,16,18,17,23,25,29,31,34,34]
 };
 let state = JSON.parse(JSON.stringify(defaultState));
+let lastRows = [];
+let hasCalculated = false;
 const MAXDEPTH = 24;
 const PXPERM = 15;
 
 function CRfactor(z){ if(z<3) return 0.75; if(z<4) return 0.8; if(z<6) return 0.85; if(z<10) return 0.95; return 1.0; }
 function rdFactor(z){ if(z<=9.15) return 1-0.00765*z; if(z<=23) return 1.174-0.0267*z; if(z<=30) return 0.744-0.008*z; return 0.5; }
 function layerFor(z){ const L=state.layers; if(z<=L[0].to) return L[0]; if(z<=L[1].to) return L[1]; return L[2]; }
+function setPending(){
+  const status = document.getElementById('calc-status');
+  if(hasCalculated){ status.textContent='Hay cambios sin recalcular. Presiona “Calcular”.'; status.className='status pending'; }
+}
 
 function compute(){
   const CE = state.hammerPct/60;
@@ -213,12 +388,12 @@ function compute(){
   const rows = [];
   for(let z=1; z<=MAXDEPTH; z++){
     const layer = layerFor(z);
-    sigmaV += layer.gamma*1;
+    sigmaV += layer.gamma;
     const u = z>state.Dw ? (z-state.Dw)*9.81 : 0;
     const sigmaVeff = Math.max(sigmaV-u, 0.1);
     const CN = Math.min(Math.sqrt(101.3/sigmaVeff), 1.7);
     const N = state.nspt[z-1];
-    const N160 = N*CE*1*1*CRfactor(z)*CN;
+    const N160 = N*CE*CRfactor(z)*CN;
     const FC = layer.finos;
     let alpha, beta;
     if(FC<=5){ alpha=0; beta=1; }
@@ -237,136 +412,168 @@ function compute(){
     PL = Math.max(0, Math.min(100, PL));
     let situacion;
     if(PL>50) situacion='alta'; else if(PL>10) situacion='moderada'; else if(PL>5) situacion='baja'; else situacion='muy baja';
-    rows.push({z, N, layer, N160cs, rd:rdz, CSR, CRR75, MSF, CRRM, FS, licua, PL, situacion});
+    rows.push({z,N,layer,N160cs,rd:rdz,CSR,CRR75,MSF,CRRM,FS,licua,PL,situacion});
   }
-  return { rows, MSF };
+  return rows;
 }
 
 function buildLayerEditor(){
   const el = document.getElementById('layers');
   el.innerHTML = '';
-  state.layers.forEach((L, i) => {
+  state.layers.forEach((L,i)=>{
     const fixed = i===2;
     const row = document.createElement('div');
-    row.className = 'layer-row';
-    row.innerHTML = '<span class="layer-name">'+L.label+'</span>' +
-      '<span>hasta</span><input data-i="'+i+'" data-f="to" type="number" min="1" max="24" step="1" value="'+L.to+'" '+(fixed?'disabled':'')+'>' +
-      '<span>m · &gamma;<sub>sat</sub></span><input data-i="'+i+'" data-f="gamma" type="number" min="10" max="25" step="0.1" value="'+L.gamma+'">' +
-      '<span>kN/m³ · finos</span><input data-i="'+i+'" data-f="finos" type="number" min="0" max="100" step="0.1" value="'+L.finos+'">' +
-      '<span>%</span>';
+    row.className='layer-row';
+    row.innerHTML = `<span class="layer-name">${L.label}</span>
+      <span>hasta</span><input data-i="${i}" data-f="to" type="number" min="1" max="24" step="1" value="${L.to}" ${fixed?'disabled':''}>
+      <span>m · γsat</span><input data-i="${i}" data-f="gamma" type="number" min="10" max="25" step="0.1" value="${L.gamma}">
+      <input data-i="${i}" data-f="finos" type="number" min="0" max="100" step="0.1" value="${L.finos}"><span>% finos</span>`;
     el.appendChild(row);
   });
-  el.querySelectorAll('input').forEach(inp => inp.addEventListener('input', e => {
-    const i = +e.target.dataset.i, f = e.target.dataset.f;
-    state.layers[i][f] = +e.target.value;
-    render();
+  el.querySelectorAll('input').forEach(inp=>inp.addEventListener('input',e=>{
+    const i=+e.target.dataset.i, f=e.target.dataset.f;
+    state.layers[i][f]=+e.target.value;
+    setPending();
   }));
 }
 
 function buildNsptGrid(){
-  const el = document.getElementById('nspt-grid');
-  el.innerHTML = '';
-  state.nspt.forEach((v, idx) => {
-    const wrap = document.createElement('div');
-    wrap.className = 'nspt-cell';
-    wrap.innerHTML = '<span>'+(idx+1)+'m</span><input data-idx="'+idx+'" type="number" min="1" max="60" step="1" value="'+v+'">';
+  const el=document.getElementById('nspt-grid');
+  el.innerHTML='';
+  state.nspt.forEach((v,idx)=>{
+    const wrap=document.createElement('div');
+    wrap.className='nspt-cell';
+    wrap.innerHTML=`<span>${idx+1} m</span><input data-idx="${idx}" type="number" min="1" max="60" step="1" value="${v}">`;
     el.appendChild(wrap);
   });
-  el.querySelectorAll('input').forEach(inp => inp.addEventListener('input', e => {
-    state.nspt[+e.target.dataset.idx] = +e.target.value;
-    render();
+  el.querySelectorAll('input').forEach(inp=>inp.addEventListener('input',e=>{
+    state.nspt[+e.target.dataset.idx]=+e.target.value;
+    setPending();
   }));
 }
 
 function buildBorehole(rows){
-  const col = document.getElementById('bh-col');
-  const totalPx = MAXDEPTH*PXPERM;
-  col.style.height = totalPx+'px';
-  col.innerHTML = '';
-  let prevTo = 0;
-  state.layers.forEach(L => {
-    const h = (L.to-prevTo)*PXPERM;
-    const div = document.createElement('div');
-    div.className = 'bh-layer '+L.cls;
-    div.style.height = h+'px';
+  const col=document.getElementById('bh-col');
+  const totalPx=MAXDEPTH*PXPERM;
+  col.style.height=totalPx+'px';
+  col.innerHTML='';
+  let prevTo=0;
+  state.layers.forEach(L=>{
+    const h=(L.to-prevTo)*PXPERM;
+    const div=document.createElement('div');
+    div.className='bh-layer '+L.cls;
+    div.style.height=h+'px';
+    div.textContent=L.label.split('· ')[1];
     col.appendChild(div);
-    prevTo = L.to;
+    prevTo=L.to;
   });
-  const wt = document.createElement('div');
-  wt.className = 'bh-wt';
-  wt.style.top = (state.Dw*PXPERM)+'px';
+  const wt=document.createElement('div');
+  wt.className='bh-wt';
+  wt.style.top=(state.Dw*PXPERM)+'px';
   col.appendChild(wt);
-  rows.forEach(r => {
-    const dot = document.createElement('div');
-    dot.className = 'bh-dot';
-    dot.style.top = (r.z*PXPERM - PXPERM/2)+'px';
-    dot.style.background = r.licua==='si' ? 'var(--danger)' : 'var(--safe)';
+  rows.forEach(r=>{
+    const dot=document.createElement('div');
+    dot.className='bh-dot';
+    dot.style.top=(r.z*PXPERM-PXPERM/2)+'px';
+    dot.style.background=r.licua==='si'?'var(--red)':'var(--green)';
     col.appendChild(dot);
   });
 }
 
-function render(){
-  const { rows } = compute();
-  const n = rows.length;
-  const licuaCount = rows.filter(r => r.licua==='si').length;
-  let minRow = rows[0];
-  rows.forEach(r => { if(r.FS < minRow.FS) minRow = r; });
-  const maxPL = Math.max(...rows.map(r => r.PL));
+function renderResults(){
+  const rows = compute();
+  lastRows = rows;
+  hasCalculated = true;
+  const status=document.getElementById('calc-status');
+  status.textContent='Cálculo actualizado correctamente.';
+  status.className='status ready';
 
-  document.getElementById('m-count').textContent = licuaCount + ' / ' + n;
-  document.getElementById('m-fsmin').textContent = minRow.FS.toFixed(2);
-  document.getElementById('m-plmax').textContent = maxPL.toFixed(0) + '%';
-  document.getElementById('m-zcrit').textContent = minRow.z + ' m';
+  const n=rows.length;
+  const licuaCount=rows.filter(r=>r.licua==='si').length;
+  let minRow=rows[0]; rows.forEach(r=>{ if(r.FS<minRow.FS) minRow=r; });
+  const maxPL=Math.max(...rows.map(r=>r.PL));
+
+  document.getElementById('m-count').textContent=licuaCount+' / '+n;
+  document.getElementById('m-fsmin').textContent=minRow.FS.toFixed(2);
+  document.getElementById('m-plmax').textContent=maxPL.toFixed(0)+'%';
+  document.getElementById('m-zcrit').textContent=minRow.z+' m';
+
+  const banner=document.getElementById('result-banner');
+  banner.className='result-banner show '+(licuaCount>0?'danger':(minRow.FS<state.FSLmin*1.15?'warn':'safe'));
+  document.getElementById('result-title').textContent=licuaCount>0?'Resultado: existen tramos con potencial de licuación':'Resultado: no se identifican tramos licuables';
+  document.getElementById('result-text').textContent=licuaCount>0?
+    `Se identificaron ${licuaCount} profundidades críticas. La profundidad más desfavorable es ${minRow.z} m, con FS = ${minRow.FS.toFixed(2)}. El resultado debe analizarse junto con el perfil estratigráfico y el nivel freático.`:
+    `El perfil evaluado supera el FSL mínimo seleccionado. La profundidad más exigente es ${minRow.z} m, con FS = ${minRow.FS.toFixed(2)}.`;
 
   buildBorehole(rows);
-
-  const scaleMax = 2;
-  const threshPct = Math.min(state.FSLmin/scaleMax, 1)*100;
-  const chart = document.getElementById('chart');
-  chart.innerHTML = '<div class="thresh-line" style="left:calc(44px + (100% - 44px - 50px) * '+(threshPct/100)+');"></div>';
-  rows.forEach(r => {
-    const pct = Math.min(r.FS/scaleMax, 1)*100;
-    const color = r.licua==='si' ? 'var(--danger)' : 'var(--safe)';
-    const row = document.createElement('div');
-    row.className = 'chart-row';
-    row.innerHTML = '<span class="depth">'+r.z+'m</span>' +
-      '<div class="track"><div class="fill" style="width:'+pct+'%; background:'+color+';"></div></div>' +
-      '<span class="fs">'+r.FS.toFixed(2)+'</span>';
+  const scaleMax=2;
+  const threshPct=Math.min(state.FSLmin/scaleMax,1)*100;
+  const chart=document.getElementById('chart');
+  chart.innerHTML=`<div class="thresh-line" style="left:calc(12px + 44px + (100% - 12px - 44px - 52px - 20px) * ${threshPct/100});"></div>`;
+  rows.forEach(r=>{
+    const pct=Math.min(r.FS/scaleMax,1)*100;
+    const color=r.licua==='si'?'var(--red)':'var(--green)';
+    const row=document.createElement('div');
+    row.className='chart-row';
+    row.innerHTML=`<span class="depth">${r.z}m</span><div class="track"><div class="fill" style="width:${pct}%;background:${color};"></div></div><span class="fs">${r.FS.toFixed(2)}</span>`;
     chart.appendChild(row);
   });
 
-  const tbody = document.getElementById('table-body');
-  tbody.innerHTML = '';
-  rows.forEach(r => {
-    const tr = document.createElement('tr');
-    tr.className = r.licua==='si' ? 'li' : 'no';
-    tr.innerHTML = '<td>'+r.z+'</td><td>'+r.layer.label.split('· ')[1]+'</td><td>'+r.N+'</td>' +
-      '<td>'+r.N160cs.toFixed(2)+'</td><td>'+r.rd.toFixed(3)+'</td><td>'+r.CSR.toFixed(3)+'</td>' +
-      '<td>'+r.CRR75.toFixed(3)+'</td><td>'+r.MSF.toFixed(3)+'</td><td>'+r.CRRM.toFixed(3)+'</td>' +
-      '<td>'+r.FS.toFixed(2)+'</td><td>'+r.PL.toFixed(0)+'%</td><td>'+r.situacion+'</td>' +
-      '<td class="verd">'+(r.licua==='si'?'LICUA':'NO LICUA')+'</td>';
+  const tbody=document.getElementById('table-body');
+  tbody.innerHTML='';
+  rows.forEach(r=>{
+    const tr=document.createElement('tr');
+    tr.className=r.licua==='si'?'li':'no';
+    tr.innerHTML=`<td>${r.z}</td><td>${r.layer.label.split('· ')[1]}</td><td>${r.N}</td>
+      <td>${r.N160cs.toFixed(2)}</td><td>${r.rd.toFixed(3)}</td><td>${r.CSR.toFixed(3)}</td>
+      <td>${r.CRR75.toFixed(3)}</td><td>${r.MSF.toFixed(3)}</td><td>${r.CRRM.toFixed(3)}</td>
+      <td>${r.FS.toFixed(2)}</td><td>${r.PL.toFixed(0)}%</td><td>${r.situacion}</td>
+      <td class="verd"><span class="pill ${r.licua==='si'?'li':'no'}">${r.licua==='si'?'LICUA':'NO LICUA'}</span></td>`;
     tbody.appendChild(tr);
   });
 }
 
-document.getElementById('mw').addEventListener('input', e => { state.Mw=+e.target.value; document.getElementById('mw-out').textContent=state.Mw.toFixed(1); render(); });
-document.getElementById('pga').addEventListener('input', e => { state.PGA=+e.target.value; document.getElementById('pga-out').textContent=state.PGA.toFixed(2); render(); });
-document.getElementById('dw').addEventListener('input', e => { state.Dw=+e.target.value; document.getElementById('dw-out').textContent=state.Dw.toFixed(1); render(); });
-document.getElementById('energia').addEventListener('input', e => { state.hammerPct=+e.target.value; document.getElementById('energia-out').textContent=state.hammerPct; render(); });
-document.getElementById('categoria').addEventListener('change', e => { state.FSLmin=+e.target.value; render(); });
-document.getElementById('reset-btn').addEventListener('click', () => {
-  state = JSON.parse(JSON.stringify(defaultState));
+function downloadCSV(){
+  if(!hasCalculated) renderResults();
+  const header=['Profundidad','Capa','N-SPT','N1(60)cs','rd','CSR','CRR7.5','MSF','CRR_M','FS','PL','Situacion','Veredicto'];
+  const lines=[header.join(',')];
+  lastRows.forEach(r=>{
+    lines.push([r.z,r.layer.label.split('· ')[1],r.N,r.N160cs.toFixed(2),r.rd.toFixed(3),r.CSR.toFixed(3),r.CRR75.toFixed(3),r.MSF.toFixed(3),r.CRRM.toFixed(3),r.FS.toFixed(2),r.PL.toFixed(0),r.situacion,r.licua==='si'?'LICUA':'NO LICUA'].join(','));
+  });
+  const blob=new Blob([lines.join('\n')],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download='resultados_licuacion_spt03.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function resetAll(){
+  state=JSON.parse(JSON.stringify(defaultState));
   document.getElementById('mw').value=state.Mw; document.getElementById('mw-out').textContent=state.Mw.toFixed(1);
   document.getElementById('pga').value=state.PGA; document.getElementById('pga-out').textContent=state.PGA.toFixed(2);
   document.getElementById('dw').value=state.Dw; document.getElementById('dw-out').textContent=state.Dw.toFixed(1);
   document.getElementById('energia').value=state.hammerPct; document.getElementById('energia-out').textContent=state.hammerPct;
   document.getElementById('categoria').value=state.FSLmin.toFixed(2);
-  buildLayerEditor(); buildNsptGrid(); render();
-});
+  buildLayerEditor(); buildNsptGrid(); renderResults();
+}
+
+function updateSliderLabels(){
+  document.getElementById('mw').addEventListener('input',e=>{state.Mw=+e.target.value;document.getElementById('mw-out').textContent=state.Mw.toFixed(1);setPending();});
+  document.getElementById('pga').addEventListener('input',e=>{state.PGA=+e.target.value;document.getElementById('pga-out').textContent=state.PGA.toFixed(2);setPending();});
+  document.getElementById('dw').addEventListener('input',e=>{state.Dw=+e.target.value;document.getElementById('dw-out').textContent=state.Dw.toFixed(1);setPending();});
+  document.getElementById('energia').addEventListener('input',e=>{state.hammerPct=+e.target.value;document.getElementById('energia-out').textContent=state.hammerPct;setPending();});
+  document.getElementById('categoria').addEventListener('change',e=>{state.FSLmin=+e.target.value;setPending();});
+}
+
+document.getElementById('calc-btn').addEventListener('click',renderResults);
+document.getElementById('hero-calc').addEventListener('click',()=>{renderResults();document.getElementById('result-banner').scrollIntoView({behavior:'smooth',block:'center'});});
+document.getElementById('reset-btn').addEventListener('click',resetAll);
+document.getElementById('csv-btn').addEventListener('click',downloadCSV);
 
 buildLayerEditor();
 buildNsptGrid();
-render();
+updateSliderLabels();
+renderResults();
 </script>
 </body>
 </html>

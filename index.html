@@ -173,6 +173,18 @@ input[type=number]:focus,select:focus{border-color:var(--blue-2);box-shadow:0 0 
 .metric .label{font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.04em;}
 .metric .value{margin-top:7px;font-size:32px;font-weight:800;letter-spacing:-.04em;color:var(--text);}
 .metric .sub{font-size:12px;color:var(--muted);margin-top:4px;}
+.impact-metrics{grid-template-columns:repeat(3,1fr);}
+.solution-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:6px;}
+.solution-card{border:1px solid var(--line);border-radius:18px;padding:18px;background:linear-gradient(180deg,#fff,#fbfdff);box-shadow:0 10px 24px rgba(14,44,80,.06);}
+.solution-card.alt{background:linear-gradient(180deg,#f7fbff,#eef6ff);}
+.solution-label{font-size:10px;font-family:var(--mono);font-weight:800;color:var(--muted-2);text-transform:uppercase;letter-spacing:.12em;margin-bottom:6px;}
+.solution-card h3{font-size:21px;letter-spacing:-.03em;margin-bottom:8px;color:var(--text);}
+.solution-card p{font-size:13px;color:var(--muted);margin-bottom:14px;}
+.kv-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.kv{border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.86);padding:11px 12px;min-height:62px;}
+.kv span{display:block;font-size:10px;color:var(--muted);font-weight:700;margin-bottom:4px;}
+.kv strong{font-size:17px;font-family:var(--mono);color:var(--text);}
+.xmark{color:var(--red);font-weight:900;margin-left:4px;}
 .result-banner{display:none;margin-bottom:20px;border-radius:24px;padding:20px;border:1px solid var(--line);box-shadow:var(--shadow-sm);background:#fff;}
 .result-banner.show{display:block;}
 .result-banner.safe{border-color:#b8e8cf;background:linear-gradient(135deg,#ffffff,var(--green-bg));}
@@ -219,8 +231,8 @@ tr.no td.verd{color:var(--green);font-weight:800;}
 .pill.li{background:var(--red-bg);color:var(--red);}
 .pill.no{background:var(--green-bg);color:var(--green);}
 footer{margin-top:36px;color:var(--muted);font-size:12px;padding:18px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.78);}
-@media (max-width:980px){.hero,.section-grid,.main-grid{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}.hero{padding:24px}.borehole-card{position:static}.grid-controls{grid-template-columns:1fr}.layer-row{grid-template-columns:1fr 55px 80px;}.layer-row span:nth-of-type(2),.layer-row span:nth-of-type(3){display:none}.calc-strip .status{margin-left:0;width:100%;}}
-@media (max-width:560px){.wrap{padding:18px 12px 54px}.metrics{grid-template-columns:1fr}.card{padding:18px}.hero h1{font-size:32px}.btn{width:100%}}
+@media (max-width:980px){.hero,.section-grid,.main-grid,.solution-grid{grid-template-columns:1fr}.metrics,.impact-metrics{grid-template-columns:repeat(2,1fr)}.hero{padding:24px}.borehole-card{position:static}.grid-controls{grid-template-columns:1fr}.layer-row{grid-template-columns:1fr 55px 80px;}.layer-row span:nth-of-type(2),.layer-row span:nth-of-type(3){display:none}.calc-strip .status{margin-left:0;width:100%;}}
+@media (max-width:560px){.wrap{padding:18px 12px 54px}.metrics,.impact-metrics{grid-template-columns:1fr}.card{padding:18px}.hero h1{font-size:32px}.btn{width:100%}}
 </style>
 </head>
 <body>
@@ -263,6 +275,30 @@ footer{margin-top:36px;color:var(--muted);font-size:12px;padding:18px;border:1px
           <label>Energía del martillo (%) <span class="val" id="energia-out">70</span></label>
           <input type="range" id="energia" min="45" max="90" step="1" value="70">
         </div>
+        <div class="field">
+          <label>Peso específico del agua γw <span class="val" id="gammaw-out">9.81</span></label>
+          <input type="number" id="gammaw" min="9" max="10.5" step="0.01" value="9.81">
+        </div>
+        <div class="field">
+          <label>Carga total estructura (ton) <span class="val" id="load-out">1300</span></label>
+          <input type="number" id="struct-load" min="100" max="10000" step="10" value="1300">
+        </div>
+        <div class="field">
+          <label>N de apoyo para pilotes <span class="val" id="supportn-out">40</span></label>
+          <input type="number" id="support-n" min="10" max="80" step="1" value="40">
+        </div>
+        <div class="field">
+          <label>Diámetro de pilote (m) <span class="val" id="piled-out">0.60</span></label>
+          <input type="number" id="pile-d" min="0.3" max="2" step="0.05" value="0.60">
+        </div>
+        <div class="field">
+          <label>Eficiencia η del grupo <span class="val" id="pileeff-out">80%</span></label>
+          <input type="range" id="pile-eff" min="0.5" max="1" step="0.01" value="0.80">
+        </div>
+        <div class="field">
+          <label>Mejora estimada ΔN1(60)cs <span class="val" id="gravel-out">+9.0</span></label>
+          <input type="range" id="gravel-delta" min="0" max="20" step="0.5" value="9">
+        </div>
         <div class="field" style="grid-column:1 / -1;">
           <label>Categoría de edificación</label>
           <select id="categoria">
@@ -299,11 +335,46 @@ footer{margin-top:36px;color:var(--muted);font-size:12px;padding:18px;border:1px
     <p id="result-text">Presiona calcular para generar el diagnóstico.</p>
   </section>
 
+  <section class="metrics impact-metrics">
+    <div class="metric"><p class="label">Espesor total licuable</p><p class="value" id="m-liq-thick">–</p><p class="sub">suma de intervalos con LICUA</p></div>
+    <div class="metric"><p class="label">Asentamiento post-licuación total</p><p class="value" id="m-settle">–</p><p class="sub">estimación académica acumulada</p></div>
+    <div class="metric"><p class="label">Profundidad crítica</p><p class="value" id="m-last-liq">–</p><p class="sub">última capa que licúa</p></div>
+  </section>
+
   <section class="metrics">
     <div class="metric"><p class="label">Tramos que licuan</p><p class="value" id="m-count">–</p><p class="sub">respecto a 24 m analizados</p></div>
     <div class="metric"><p class="label">FS mínimo</p><p class="value" id="m-fsmin">–</p><p class="sub">menor seguridad calculada</p></div>
     <div class="metric"><p class="label">PL máximo</p><p class="value" id="m-plmax">–</p><p class="sub">probabilidad máxima</p></div>
     <div class="metric"><p class="label">Profundidad crítica</p><p class="value" id="m-zcrit">–</p><p class="sub">zona con menor FS</p></div>
+  </section>
+
+  <section class="card" id="soluciones">
+    <h2><span class="icon">🏗️</span>Comparación de soluciones de cimentación profunda</h2>
+    <p class="hint">Resumen automático de alternativas a partir del perfil SPT y de los parámetros de diseño ingresados.</p>
+    <div class="solution-grid">
+      <article class="solution-card">
+        <div class="solution-label">Mejora del terreno</div>
+        <h3>Columnas de grava</h3>
+        <p>Densifican el suelo granular suelto y aceleran la disipación de presión de poros, elevando el valor \((N1)60cs\) in situ.</p>
+        <div class="kv-grid">
+          <div class="kv"><span>Espesor a tratar</span><strong id="sol-thick">–</strong></div>
+          <div class="kv"><span>(N1)60cs promedio actual</span><strong id="sol-navg">–</strong></div>
+          <div class="kv"><span>(N1)60cs estimado mejorado</span><strong id="sol-nimp">–</strong></div>
+          <div class="kv"><span>FSLic estimado post-mejora</span><strong><span id="sol-fsimp">–</span><span class="xmark" id="sol-fsmark"></span></strong></div>
+        </div>
+      </article>
+      <article class="solution-card alt">
+        <div class="solution-label">Cimentación profunda</div>
+        <h3>Grupo de pilotes</h3>
+        <p>Transfieren la carga a través de la zona licuable hacia el estrato competente, usando una estimación preliminar tipo SPT-Meyerhof.</p>
+        <div class="kv-grid">
+          <div class="kv"><span>Estrato de apoyo (N campo)</span><strong id="pile-support">–</strong></div>
+          <div class="kv"><span>Diámetro asumido</span><strong id="pile-diam">–</strong></div>
+          <div class="kv"><span>Q admisible / pilote</span><strong id="pile-qadm">–</strong></div>
+          <div class="kv"><span>N.° de pilotes requeridos</span><strong id="pile-num">–</strong></div>
+        </div>
+      </article>
+    </div>
   </section>
 
   <section class="card">
@@ -359,7 +430,7 @@ footer{margin-top:36px;color:var(--muted);font-size:12px;padding:18px;border:1px
 
 <script>
 const defaultState = {
-  Mw: 8, PGA: 0.46, Dw: 3, hammerPct: 70, FSLmin: 1.25,
+  Mw: 8, PGA: 0.46, Dw: 3, hammerPct: 70, gammaW: 9.81, structLoad: 1300, supportN: 40, pileDiam: 0.60, pileEff: 0.80, gravelDelta: 9, FSLmin: 1.25,
   layers: [
     {to: 9, gamma: 16.5, finos: 3, label: 'Capa 1 · SP', cls:'sp'},
     {to: 18, gamma: 18, finos: 6.9, label: 'Capa 2 · SP-SC', cls:'spsc'},
@@ -389,7 +460,7 @@ function compute(){
   for(let z=1; z<=MAXDEPTH; z++){
     const layer = layerFor(z);
     sigmaV += layer.gamma;
-    const u = z>state.Dw ? (z-state.Dw)*9.81 : 0;
+    const u = z>state.Dw ? (z-state.Dw)*state.gammaW : 0;
     const sigmaVeff = Math.max(sigmaV-u, 0.1);
     const CN = Math.min(Math.sqrt(101.3/sigmaVeff), 1.7);
     const N = state.nspt[z-1];
@@ -489,14 +560,37 @@ function renderResults(){
   status.className='status ready';
 
   const n=rows.length;
-  const licuaCount=rows.filter(r=>r.licua==='si').length;
+  const licuaRows=rows.filter(r=>r.licua==='si');
+  const licuaCount=licuaRows.length;
   let minRow=rows[0]; rows.forEach(r=>{ if(r.FS<minRow.FS) minRow=r; });
   const maxPL=Math.max(...rows.map(r=>r.PL));
+  const liqThickness=licuaCount;
+  const lastLiq=licuaCount ? Math.max(...licuaRows.map(r=>r.z)) : 0;
+  const postSettlement=liqThickness*0.663;
+  const avgN=licuaCount ? licuaRows.reduce((a,r)=>a+r.N160cs,0)/licuaCount : 0;
+  const improvedN=avgN + state.gravelDelta;
+  const minFsLiq=licuaCount ? Math.min(...licuaRows.map(r=>r.FS)) : minRow.FS;
+  const fsImproved=avgN>0 ? minFsLiq*(improvedN/avgN) : 0;
+  const qAdmPile=66.4*(state.supportN/40)*Math.pow(state.pileDiam/0.60,2);
+  const pileNum=Math.ceil(state.structLoad/(qAdmPile*state.pileEff));
 
+  document.getElementById('m-liq-thick').textContent=liqThickness.toFixed(1)+' m';
+  document.getElementById('m-settle').textContent=postSettlement.toFixed(1)+' cm';
+  document.getElementById('m-last-liq').textContent=lastLiq ? lastLiq.toFixed(1)+' m' : '0.0 m';
   document.getElementById('m-count').textContent=licuaCount+' / '+n;
   document.getElementById('m-fsmin').textContent=minRow.FS.toFixed(2);
   document.getElementById('m-plmax').textContent=maxPL.toFixed(0)+'%';
   document.getElementById('m-zcrit').textContent=minRow.z+' m';
+
+  document.getElementById('sol-thick').textContent=liqThickness.toFixed(1)+' m';
+  document.getElementById('sol-navg').textContent=avgN.toFixed(1);
+  document.getElementById('sol-nimp').textContent=improvedN.toFixed(1);
+  document.getElementById('sol-fsimp').textContent=fsImproved.toFixed(2);
+  document.getElementById('sol-fsmark').textContent=fsImproved>=state.FSLmin?'✓':'✕';
+  document.getElementById('pile-support').textContent=state.supportN.toFixed(0);
+  document.getElementById('pile-diam').textContent=state.pileDiam.toFixed(2)+' m';
+  document.getElementById('pile-qadm').textContent=qAdmPile.toFixed(1)+' ton';
+  document.getElementById('pile-num').textContent=pileNum+' (η='+(state.pileEff*100).toFixed(0)+'%)';
 
   const banner=document.getElementById('result-banner');
   banner.className='result-banner show '+(licuaCount>0?'danger':(minRow.FS<state.FSLmin*1.15?'warn':'safe'));
@@ -553,6 +647,12 @@ function resetAll(){
   document.getElementById('pga').value=state.PGA; document.getElementById('pga-out').textContent=state.PGA.toFixed(2);
   document.getElementById('dw').value=state.Dw; document.getElementById('dw-out').textContent=state.Dw.toFixed(1);
   document.getElementById('energia').value=state.hammerPct; document.getElementById('energia-out').textContent=state.hammerPct;
+  document.getElementById('gammaw').value=state.gammaW; document.getElementById('gammaw-out').textContent=state.gammaW.toFixed(2);
+  document.getElementById('struct-load').value=state.structLoad; document.getElementById('load-out').textContent=state.structLoad.toFixed(0);
+  document.getElementById('support-n').value=state.supportN; document.getElementById('supportn-out').textContent=state.supportN.toFixed(0);
+  document.getElementById('pile-d').value=state.pileDiam; document.getElementById('piled-out').textContent=state.pileDiam.toFixed(2);
+  document.getElementById('pile-eff').value=state.pileEff; document.getElementById('pileeff-out').textContent=(state.pileEff*100).toFixed(0)+'%';
+  document.getElementById('gravel-delta').value=state.gravelDelta; document.getElementById('gravel-out').textContent='+'+state.gravelDelta.toFixed(1);
   document.getElementById('categoria').value=state.FSLmin.toFixed(2);
   buildLayerEditor(); buildNsptGrid(); renderResults();
 }
@@ -562,6 +662,12 @@ function updateSliderLabels(){
   document.getElementById('pga').addEventListener('input',e=>{state.PGA=+e.target.value;document.getElementById('pga-out').textContent=state.PGA.toFixed(2);setPending();});
   document.getElementById('dw').addEventListener('input',e=>{state.Dw=+e.target.value;document.getElementById('dw-out').textContent=state.Dw.toFixed(1);setPending();});
   document.getElementById('energia').addEventListener('input',e=>{state.hammerPct=+e.target.value;document.getElementById('energia-out').textContent=state.hammerPct;setPending();});
+  document.getElementById('gammaw').addEventListener('input',e=>{state.gammaW=+e.target.value;document.getElementById('gammaw-out').textContent=state.gammaW.toFixed(2);setPending();});
+  document.getElementById('struct-load').addEventListener('input',e=>{state.structLoad=+e.target.value;document.getElementById('load-out').textContent=state.structLoad.toFixed(0);setPending();});
+  document.getElementById('support-n').addEventListener('input',e=>{state.supportN=+e.target.value;document.getElementById('supportn-out').textContent=state.supportN.toFixed(0);setPending();});
+  document.getElementById('pile-d').addEventListener('input',e=>{state.pileDiam=+e.target.value;document.getElementById('piled-out').textContent=state.pileDiam.toFixed(2);setPending();});
+  document.getElementById('pile-eff').addEventListener('input',e=>{state.pileEff=+e.target.value;document.getElementById('pileeff-out').textContent=(state.pileEff*100).toFixed(0)+'%';setPending();});
+  document.getElementById('gravel-delta').addEventListener('input',e=>{state.gravelDelta=+e.target.value;document.getElementById('gravel-out').textContent='+'+state.gravelDelta.toFixed(1);setPending();});
   document.getElementById('categoria').addEventListener('change',e=>{state.FSLmin=+e.target.value;setPending();});
 }
 
